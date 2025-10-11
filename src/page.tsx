@@ -34,9 +34,6 @@ import { getVersion } from '@tauri-apps/api/app';
 
 import Changelogs from './pages/Changelogs';
 
-import { check } from '@tauri-apps/plugin-updater';
-import { relaunch } from '@tauri-apps/plugin-process';
-
 import { localization } from './util/localization';
 
 import translateGT from './translators/google_translate';
@@ -76,14 +73,6 @@ function App() {
     setLang(language == null ? "en" : language)
 
     setConfig(cfg)
-
-    check().then((update) => {
-      setUpdateVisible(update != null)
-
-      update?.downloadAndInstall().then(() => {
-        relaunch()
-      });
-    });
 
     translateGT("Hello, how are you?", "en-US", "tr-TR").then((out) => { console.log("Can access to Google servers: " + out) }).catch(err => {
       console.log(err)
