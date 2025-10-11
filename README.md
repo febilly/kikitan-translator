@@ -33,11 +33,6 @@ npm i
 # for development
 npm run tauri dev
 
-# signing is required if you want to use the updater
-# if don't want to use the updater, delete the updater plugin inside of tauri.conf.json
-
-# to sign the executable, generate a private and public keypair, then assign TAURI_SIGNING_PRIVATE_KEY environment variable and update the pubkey field inside of tauri.conf.json with your public key
-
 # for compiling as a release build
 npm run tauri build
 ```

@@ -10,7 +10,6 @@ import {
   MenuItem,
   Button,
   IconButton,
-  CircularProgress,
   Box
 } from '@mui/material';
 
@@ -35,9 +34,6 @@ import { getVersion } from '@tauri-apps/api/app';
 
 import Changelogs from './pages/Changelogs';
 
-import { check } from '@tauri-apps/plugin-updater';
-import { relaunch } from '@tauri-apps/plugin-process';
-
 import { localization } from './util/localization';
 
 import translateGT from './translators/google_translate';
@@ -59,7 +55,6 @@ function App() {
   const [quickstartVisible, setQuickstartVisible] = React.useState(true)
   const [changelogsVisible, setChangelogsVisible] = React.useState(false)
   const [settingsVisible, setSettingsVisible] = React.useState(false)
-  const [updateVisible, setUpdateVisible] = React.useState(false)
   const [donateVisible, setDonateVisible] = React.useState(false)
   const [googleServersErrorVisible, setGoogleServersErrorVisible] = React.useState(false)
 
@@ -91,14 +86,6 @@ function App() {
 
     setLang(language == null ? "en" : language)
     setConfig(cfg)
-
-    check().then((update) => {
-      setUpdateVisible(update != null)
-
-      update?.downloadAndInstall().then(() => {
-        relaunch()
-      });
-    });
 
     translateGT("Hello, how are you?", "en-US", "tr-TR").then((out) => { console.log("Can access to Google servers: " + out) }).catch(err => {
       console.log(err)
@@ -171,15 +158,6 @@ function App() {
               </Box>
               <Markdown remarkPlugins={[remarkGfm]} className="list-disc list-inside text-sm mt-4 ml-8 w-11/12 max-h-80 whitespace-pre text-wrap overflow-y-scroll">{announcementData?.[lang]}</Markdown>
             </Box>
-          </div>
-        </div>
-
-        <div className={'transition-all z-30 w-full h-screen flex backdrop-blur-sm bg-transparent justify-center items-center absolute' + (updateVisible ? " opacity-100" : " opacity-0 pointer-events-none")}>
-          <div className={`flex flex-col justify-center w-10/12 h-5/6 outline outline-1 ${config.light_mode ? "outline-white" : "outline-slate-950"} rounded ${config.light_mode ? "bg-white" : "bg-slate-950"}`}>
-            <div className='flex flex-row justify-center'>
-              <CircularProgress></CircularProgress>
-              <p className='ml-4 text-4xl'>{localization.updating[lang]}</p>
-            </div>
           </div>
         </div>
 

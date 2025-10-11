@@ -24,7 +24,6 @@
     "@tauri-apps/plugin-os": "^2.2.0",
     "@tauri-apps/plugin-process": "^2.2.0",
     "@tauri-apps/plugin-shell": "^2.2.0",
-    "@tauri-apps/plugin-updater": "^2.3.0",
     "@transcribe/shout": "^1.0.4",
     "@types/dom-speech-recognition": "^0.0.4",
     "axios": "^1.7.9",
