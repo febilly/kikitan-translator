@@ -16,8 +16,7 @@
       "icons/kikitan.ico"
     ],
     "resources": [
-      "./ovrpipe",
-      "./desktopoverlay"
+      "./ovrpipe"
     ],
     "windows": {
       "certificateThumbprint": null,

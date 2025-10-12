@@ -105,19 +105,9 @@ export class Gemini extends Recognizer {
                             }
                         } else {
                             info("[OVERLAY] Checking if desktop overlay is running...");
-                            try {
-                                if (!(await invoke("is_desktop_overlay_running"))) {
-                                    info("[OVERLAY] Starting desktop overlay...");
-
-                                    await invoke("start_desktop_overlay");
-                                    await new Promise(resolve => setTimeout(resolve, 2000));
-                                } else {
-                                    info("[OVERLAY] Desktop overlay is already running.");
-                                }
-                            } catch (error) {
-                                info(`[OVERLAY] Failed to start desktop overlay: ${error}`);
-                                info("[OVERLAY] Desktop overlay functionality will be disabled.");
-                            }
+                            
+                            info(`[OVERLAY] Failed to start desktop overlay: ${error}`);
+                            info("[OVERLAY] Desktop overlay functionality will be disabled.");
                         }
                     } catch (error) {
                         info(`[OVERLAY] Error during overlay initialization: ${error}`);

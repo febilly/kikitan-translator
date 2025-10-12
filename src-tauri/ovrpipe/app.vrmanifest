@@ -1,0 +1,14 @@
+{
+	"applications": [{
+		"app_key": "boll7708.openvroverlaypipe",
+		"launch_type": "binary",
+		"binary_path_windows": "OpenVROverlayPipe.exe",
+		"is_dashboard_overlay": true,
+		"strings": {
+			"en_us": {
+				"name": "OpenVROverlayPipe",
+				"description": "Display SteamVR overlays."
+			}
+		}
+	}]
+}
