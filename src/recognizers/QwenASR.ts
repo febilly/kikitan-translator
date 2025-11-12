@@ -5,9 +5,10 @@ import {
     debug,
     warn
 } from '@tauri-apps/plugin-log';
+import { invoke } from '@tauri-apps/api/core';
+import { listen } from '@tauri-apps/api/event';
 
 export class QwenASR extends Recognizer {
-    private ws: WebSocket | null = null;
     private apiKey: string;
     private mediaRecorder: MediaRecorder | null = null;
     private audioContext: AudioContext | null = null;
@@ -20,6 +21,10 @@ export class QwenASR extends Recognizer {
     private enableServerVad: boolean = true;
     private currentTranscript: string = "";
     private sessionConfigured: boolean = false;
+    private wsConnected: boolean = false;
+    private messageUnlisten: (() => void) | null = null;
+    private closeUnlisten: (() => void) | null = null;
+    private errorUnlisten: (() => void) | null = null;
 
     constructor(lang: string, apiKey: string) {
         super(lang);
@@ -79,87 +84,93 @@ export class QwenASR extends Recognizer {
     }
 
     private async connectWebSocket(): Promise<void> {
-        if (this.isConnecting || this.ws) {
+        if (this.isConnecting || this.wsConnected) {
             return;
         }
 
         this.isConnecting = true;
 
-        return new Promise((resolve, reject) => {
-            try {
-                const MODEL = 'qwen3-asr-flash-realtime';
-                const baseUrl = 'wss://dashscope.aliyuncs.com/api-ws/v1/realtime';
-                // In browser environments, we cannot set custom HTTP headers on WebSocket.
-                // However, we can use subprotocols that follow RFC 6455 naming rules.
-                // We encode authentication info using valid subprotocol tokens.
-                const url = `${baseUrl}?model=${MODEL}`;
+        try {
+            const MODEL = 'qwen3-asr-flash-realtime';
 
-                info(`[QWEN-ASR] Connecting to WebSocket...`);
+            info(`[QWEN-ASR] Connecting to WebSocket via Tauri backend...`);
 
-                // Use valid subprotocol names that don't contain '=' or other invalid characters
-                // Format the API key as a subprotocol: "authorization.bearer.<token>"
-                const protocols = [
-                    'realtime-v1',  // Changed from 'realtime=v1' to follow RFC 6455
-                    `authorization.bearer.${this.apiKey}`
-                ];
+            // Set up event listeners for WebSocket messages
+            this.messageUnlisten = await listen('qwen-ws-message', (event) => {
+                this.handleMessage(event.payload as string);
+            });
 
-                this.ws = new WebSocket(url, protocols);
+            this.closeUnlisten = await listen('qwen-ws-close', () => {
+                info("[QWEN-ASR] WebSocket closed by server");
+                this.wsConnected = false;
+                this.handleReconnect();
+            });
 
-                this.ws.onopen = () => {
-                    info("[QWEN-ASR] WebSocket connected");
-                    this.isConnecting = false;
-                    this.reconnectAttempts = 0;
-                    
-                    // Wait a bit before sending session config
-                    setTimeout(() => {
-                        this.sendSessionUpdate();
-                    }, 100);
-                    
-                    resolve();
-                };
+            this.errorUnlisten = await listen('qwen-ws-error', (event) => {
+                error("[QWEN-ASR] WebSocket error: " + event.payload);
+                this.wsConnected = false;
+                this.handleReconnect();
+            });
 
-                this.ws.onmessage = (event) => {
-                    this.handleMessage(event.data);
-                };
+            // Connect via Tauri command
+            await invoke('qwen_ws_connect', {
+                apiKey: this.apiKey,
+                model: MODEL
+            });
 
-                this.ws.onerror = (err) => {
-                    error("[QWEN-ASR] WebSocket error: " + JSON.stringify(err));
-                    this.isConnecting = false;
-                    reject(err);
-                };
+            info("[QWEN-ASR] WebSocket connected via Tauri backend");
+            this.wsConnected = true;
+            this.isConnecting = false;
+            this.reconnectAttempts = 0;
 
-                this.ws.onclose = (event) => {
-                    info(`[QWEN-ASR] WebSocket closed: ${event.code} - ${event.reason}`);
-                    this.isConnecting = false;
-                    this.ws = null;
-
-                    if (this.running && this.reconnectAttempts < this.maxReconnectAttempts) {
-                        this.reconnectAttempts++;
-                        info(`[QWEN-ASR] Attempting to reconnect (${this.reconnectAttempts}/${this.maxReconnectAttempts})...`);
-                        setTimeout(() => {
-                            this.connectWebSocket();
-                        }, 2000 * this.reconnectAttempts);
-                    }
-                };
-            } catch (err) {
-                error("[QWEN-ASR] Failed to create WebSocket: " + err);
-                this.isConnecting = false;
-                reject(err);
-            }
-        });
-    }
-
-    private closeWebSocket() {
-        if (this.ws) {
-            if (this.ws.readyState === WebSocket.OPEN) {
-                this.ws.close(1000, 'Recognition stopped');
-            }
-            this.ws = null;
+            // Wait a bit before sending session config
+            setTimeout(() => {
+                this.sendSessionUpdate();
+            }, 100);
+        } catch (err) {
+            error("[QWEN-ASR] Failed to connect WebSocket: " + err);
+            this.isConnecting = false;
+            throw err;
         }
     }
 
-    private sendSessionUpdate() {
-        if (!this.ws || this.ws.readyState !== WebSocket.OPEN) {
+    private handleReconnect() {
+        if (this.running && this.reconnectAttempts < this.maxReconnectAttempts) {
+            this.reconnectAttempts++;
+            info(`[QWEN-ASR] Attempting to reconnect (${this.reconnectAttempts}/${this.maxReconnectAttempts})...`);
+            setTimeout(() => {
+                this.connectWebSocket();
+            }, 2000 * this.reconnectAttempts);
+        }
+    }
+
+    private async closeWebSocket() {
+        if (this.wsConnected) {
+            try {
+                await invoke('qwen_ws_close');
+            } catch (e) {
+                error("[QWEN-ASR] Error closing WebSocket: " + e);
+            }
+            this.wsConnected = false;
+        }
+
+        // Clean up event listeners
+        if (this.messageUnlisten) {
+            this.messageUnlisten();
+            this.messageUnlisten = null;
+        }
+        if (this.closeUnlisten) {
+            this.closeUnlisten();
+            this.closeUnlisten = null;
+        }
+        if (this.errorUnlisten) {
+            this.errorUnlisten();
+            this.errorUnlisten = null;
+        }
+    }
+
+    private async sendSessionUpdate() {
+        if (!this.wsConnected) {
             warn("[QWEN-ASR] WebSocket not ready for session update");
             return;
         }
@@ -206,8 +217,12 @@ export class QwenASR extends Recognizer {
         };
 
         info("[QWEN-ASR] Sending session update with language: " + qwenLang);
-        this.ws.send(JSON.stringify(sessionUpdate));
-        this.sessionConfigured = true;
+        try {
+            await invoke('qwen_ws_send', { message: JSON.stringify(sessionUpdate) });
+            this.sessionConfigured = true;
+        } catch (e) {
+            error("[QWEN-ASR] Failed to send session update: " + e);
+        }
     }
 
     private handleMessage(data: string) {
@@ -259,7 +274,7 @@ export class QwenASR extends Recognizer {
             this.audioProcessor = this.audioContext.createScriptProcessor(bufferSize, 1, 1);
             
             this.audioProcessor.onaudioprocess = (e) => {
-                if (!this.running || !this.ws || this.ws.readyState !== WebSocket.OPEN || !this.sessionConfigured) {
+                if (!this.running || !this.wsConnected || !this.sessionConfigured) {
                     return;
                 }
 
@@ -273,11 +288,10 @@ export class QwenASR extends Recognizer {
                     audio: base64Audio
                 };
 
-                try {
-                    this.ws.send(JSON.stringify(audioEvent));
-                } catch (e) {
-                    error("[QWEN-ASR] Error sending audio: " + e);
-                }
+                invoke('qwen_ws_send', { message: JSON.stringify(audioEvent) })
+                    .catch(e => {
+                        error("[QWEN-ASR] Error sending audio: " + e);
+                    });
             };
 
             this.audioSource.connect(this.audioProcessor);
