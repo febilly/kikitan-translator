@@ -23,6 +23,9 @@ tauri-plugin-shell = "2.0.0-rc.0"
 tauri-plugin-fs = "2.0.0-rc.0"
 tokio = { version = "1.29.1", features = ["full"] }
 tauri-plugin-log = "2.0.0-rc"
+tokio-tungstenite = { version = "0.21", features = ["native-tls"] }
+futures-util = "0.3"
+http = "1.0"
 
 [features]
 # this feature is used for production builds or when `devPath` points to the filesystem and the built-in dev server is disabled.
