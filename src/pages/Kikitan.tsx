@@ -28,6 +28,7 @@ import { calculateMinWaitTime, Lang, langSource, langTo } from "../util/constant
 import { Config } from "../util/config";
 import { Recognizer } from "../recognizers/recognizer";
 import { WebSpeech } from "../recognizers/WebSpeech";
+import { QwenASR } from "../recognizers/QwenASR";
 
 import { localization } from "../util/localization";
 import translateGT from "../translators/google_translate";
@@ -165,8 +166,14 @@ export default function Kikitan({ config, setConfig, lang }: KikitanProps) {
                     });
             }, 1000)
 
-            sr = new WebSpeech(sourceLanguage)
-            info("[SR] Using WebSpeech for recognition")
+            // Use QwenASR if API key is provided, otherwise fall back to WebSpeech
+            if (config.api_settings.qwen_asr_api_key && config.api_settings.qwen_asr_api_key.trim() !== "") {
+                sr = new QwenASR(sourceLanguage, config.api_settings.qwen_asr_api_key)
+                info("[SR] Using Qwen ASR for recognition")
+            } else {
+                sr = new WebSpeech(sourceLanguage)
+                info("[SR] Using WebSpeech for recognition (no Qwen API key provided)")
+            }
 
             sr.onResult((result: string, isFinal: boolean) => {
                 info(`[SR] Received recognition result: Final: ${isFinal} - Result Length: ${result.length}`)

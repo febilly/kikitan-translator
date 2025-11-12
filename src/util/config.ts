@@ -30,6 +30,9 @@ export type Config = {
         chatbox_update_speed: number,
         osc_address: string,
         osc_port: number
+    },
+    api_settings: {
+        qwen_asr_api_key: string
     }
 }
 
@@ -51,6 +54,9 @@ export const DEFAULT_CONFIG: Config = {
         chatbox_update_speed: speed_presets.slow,
         osc_address: "127.0.0.1",
         osc_port: 9000
+    },
+    api_settings: {
+        qwen_asr_api_key: ""
     }
 }
 
