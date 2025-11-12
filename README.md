@@ -15,6 +15,19 @@
 
 - **Translation:** Translation of your speech to the chatbox in more than 10 major languages (6 accents of English and 6 dialects of Spanish along with languages such as Japanese, Korean, Chinese, Italian, French, Turkish, Russian, Polish, Portugal, German, French, Arabic, Swedish and so on)
 - **Transcription (Just Speech to Text):** If you don't want to translate, there is a transcription mode that sends whatever you say directly to the chatbox. Perfect for people that prefer to not speak in VRChat but be able to communicate with the convenience of speaking.
+- **Advanced Speech Recognition:** Supports both browser-based WebSpeech and cloud-based Qwen ASR (Alibaba Cloud) for enhanced recognition accuracy and streaming performance.
+
+## Speech Recognition Options
+
+Kikitan Translator offers two speech recognition backends:
+
+1. **WebSpeech (Default):** Uses the browser's built-in speech recognition API. Works out of the box with no configuration required.
+
+2. **Qwen ASR (Optional):** Uses Alibaba Cloud's Qwen3-ASR-Flash-Realtime model for streaming speech recognition with improved accuracy and real-time performance.
+   - To use Qwen ASR, get your API key from [Alibaba Cloud DashScope](https://help.aliyun.com/zh/model-studio/get-api-key)
+   - Enter your API key in Settings > API Settings
+   - Supports: Chinese, English, Japanese, Korean, Spanish, French, German
+   - Features: Server-side VAD, real-time streaming, automatic reconnection
 
 ## How to build
 

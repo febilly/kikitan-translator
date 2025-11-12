@@ -84,7 +84,8 @@ export default function Settings({ closeCallback, config, setConfig, lang }: Set
                 <Tabs textColor="inherit" value={page} onChange={handleChange}>
                     <Tab label={localization.language_settings[lang]} {...a11yProps(0)} />
                     <Tab label={localization.vrchat_settings[lang]} {...a11yProps(1)} />
-                    <Tab label={localization.debug_settings[lang]} {...a11yProps(2)} />
+                    <Tab label={localization.api_settings[lang]} {...a11yProps(2)} />
+                    <Tab label={localization.debug_settings[lang]} {...a11yProps(3)} />
                 </Tabs>
             </Box>
             <CustomTabPanel className="flex" value={page} index={0}>
@@ -245,6 +246,27 @@ export default function Settings({ closeCallback, config, setConfig, lang }: Set
                 </FormGroup>
             </CustomTabPanel>
             <CustomTabPanel className="flex" value={page} index={2}>
+                <FormGroup>
+                    <TextField slotProps={{
+                        inputLabel: {
+                            style: { color: config.light_mode ? "black" : '#94A3B8' }
+                        },
+                        htmlInput: {
+                            style: { color: config.light_mode ? "black" : '#fff' }
+                        }
+                    }} className="mt-2 w-96" value={config.api_settings.qwen_asr_api_key} id="qwen-asr-api-key" label={localization.qwen_asr_api_key[lang]} variant="outlined" type="password" onChange={(e) => {
+                        setConfig({
+                            ...config,
+                            api_settings: {
+                                ...config.api_settings,
+                                qwen_asr_api_key: e.target.value
+                            }
+                        })
+                    }} />
+                    <p className={`mt-2 text-sm ${config.light_mode ? "text-gray-600" : "text-slate-400"}`}>{localization.qwen_asr_api_key_help[lang]}</p>
+                </FormGroup>
+            </CustomTabPanel>
+            <CustomTabPanel className="flex" value={page} index={3}>
                 <FormGroup>
                     <Button variant="contained" onClick={async () => {
                         open(await appLogDir())

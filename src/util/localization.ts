@@ -39,4 +39,7 @@ export const localization = {
     donate: { en: "Donate", jp: "寄付", cn: "捐赠", kr: "기부", tr: "Bağış Yap" },
     debug_settings: { en: "Debug Settings", jp: "デバッグ設定", cn: "调试设置", kr: "디버그 설정", tr: "Hata Ayıklama Ayarları" },
     open_logs: { en: "Open Logs", jp: "ログを開く", cn: "打开日志", kr: "로그 열기", tr: "Günlükleri Aç" },
+    api_settings: { en: "API Settings", jp: "API設定", cn: "API设置", kr: "API 설정", tr: "API Ayarları" },
+    qwen_asr_api_key: { en: "Qwen ASR API Key", jp: "Qwen ASR APIキー", cn: "Qwen ASR API密钥", kr: "Qwen ASR API 키", tr: "Qwen ASR API Anahtarı" },
+    qwen_asr_api_key_help: { en: "Get your API Key from Alibaba Cloud DashScope (https://help.aliyun.com/zh/model-studio/get-api-key). Leave empty to use WebSpeech (browser built-in recognition). Note: Browser WebSocket limitations may affect connectivity.", jp: "Alibaba Cloud DashScopeからAPIキーを取得してください (https://help.aliyun.com/zh/model-studio/get-api-key)。空欄にするとWebSpeech（ブラウザ内蔵の認識）を使用します。注意: ブラウザのWebSocket制限により接続に影響が出る場合があります。", cn: "从阿里云百炼获取您的API密钥 (https://help.aliyun.com/zh/model-studio/get-api-key)。留空将使用WebSpeech（浏览器内置识别）。注意：浏览器WebSocket限制可能影响连接。", kr: "Alibaba Cloud DashScope에서 API 키를 받으세요 (https://help.aliyun.com/zh/model-studio/get-api-key). 비워두면 WebSpeech(브라우저 내장 인식)를 사용합니다. 참고: 브라우저 WebSocket 제한이 연결에 영향을 줄 수 있습니다.", tr: "API Anahtarınızı Alibaba Cloud DashScope'tan alın (https://help.aliyun.com/zh/model-studio/get-api-key). Boş bırakılırsa WebSpeech (tarayıcı yerleşik tanıma) kullanılır. Not: Tarayıcı WebSocket sınırlamaları bağlantıyı etkileyebilir." },
 };
