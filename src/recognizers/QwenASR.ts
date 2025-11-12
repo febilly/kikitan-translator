@@ -89,16 +89,17 @@ export class QwenASR extends Recognizer {
             try {
                 const MODEL = 'qwen3-asr-flash-realtime';
                 const baseUrl = 'wss://dashscope.aliyuncs.com/api-ws/v1/realtime';
+                // In browser environments, we cannot set custom HTTP headers on WebSocket.
+                // However, we can use subprotocols that follow RFC 6455 naming rules.
+                // We encode authentication info using valid subprotocol tokens.
                 const url = `${baseUrl}?model=${MODEL}`;
 
                 info(`[QWEN-ASR] Connecting to WebSocket...`);
 
-                // For OpenAI-compatible realtime API, we need to send special headers
-                // Since browser WebSocket doesn't support custom headers directly,
-                // we encode the auth in the protocols array using a special format
-                // The server should accept: ["realtime=v1", "authorization.bearer.{token}"]
+                // Use valid subprotocol names that don't contain '=' or other invalid characters
+                // Format the API key as a subprotocol: "authorization.bearer.<token>"
                 const protocols = [
-                    'realtime=v1',
+                    'realtime-v1',  // Changed from 'realtime=v1' to follow RFC 6455
                     `authorization.bearer.${this.apiKey}`
                 ];
 
