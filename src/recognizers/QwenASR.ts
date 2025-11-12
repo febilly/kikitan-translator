@@ -89,14 +89,20 @@ export class QwenASR extends Recognizer {
             try {
                 const MODEL = 'qwen3-asr-flash-realtime';
                 const baseUrl = 'wss://dashscope.aliyuncs.com/api-ws/v1/realtime';
-                
-                // Include authorization as query parameter since browser WebSocket doesn't support custom headers
-                // This is a common pattern for WebSocket auth in browsers
-                const url = `${baseUrl}?model=${MODEL}&api_key=${encodeURIComponent(this.apiKey)}`;
+                const url = `${baseUrl}?model=${MODEL}`;
 
                 info(`[QWEN-ASR] Connecting to WebSocket...`);
 
-                this.ws = new WebSocket(url);
+                // For OpenAI-compatible realtime API, we need to send special headers
+                // Since browser WebSocket doesn't support custom headers directly,
+                // we encode the auth in the protocols array using a special format
+                // The server should accept: ["realtime=v1", "authorization.bearer.{token}"]
+                const protocols = [
+                    'realtime=v1',
+                    `authorization.bearer.${this.apiKey}`
+                ];
+
+                this.ws = new WebSocket(url, protocols);
 
                 this.ws.onopen = () => {
                     info("[QWEN-ASR] WebSocket connected");
