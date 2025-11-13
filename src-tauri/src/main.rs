@@ -159,7 +159,8 @@ async fn qwen_ws_connect(
     let host = authority
         .find('@')
         .map(|idx| authority.split_at(idx + 1).1)
-        .unwrap_or(authority);
+        .unwrap_or(authority)
+        .to_string();
     
     // Create request with all required WebSocket handshake headers
     // plus our custom application headers
