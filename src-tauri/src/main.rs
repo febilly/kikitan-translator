@@ -4,6 +4,7 @@
 use rosc::encoder;
 use rosc::{OscMessage, OscPacket, OscType};
 use std::net::{Ipv4Addr, UdpSocket};
+use std::process::Command;
 use std::thread;
 use tauri::{AppHandle, Emitter, State};
 use std::sync::{Arc, Mutex};
