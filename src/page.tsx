@@ -10,7 +10,8 @@ import {
   MenuItem,
   Button,
   IconButton,
-  CircularProgress
+  CircularProgress,
+  TextField
 } from '@mui/material';
 
 import {
@@ -44,6 +45,7 @@ function App() {
   const [settingsVisible, setSettingsVisible] = React.useState(false)
   const [donateVisible, setDonateVisible] = React.useState(false)
   const [googleServersErrorVisible, setGoogleServersErrorVisible] = React.useState(false)
+  const [apiKeyPromptVisible, setApiKeyPromptVisible] = React.useState(false)
 
   const [quickstartPage, setQuickstartPage] = React.useState(0)
 
@@ -52,6 +54,9 @@ function App() {
   const [appVersion, setAppVersion] = React.useState("")
 
   const [loaded, setLoaded] = React.useState(false)
+  
+  const [apiKeyInput, setApiKeyInput] = React.useState("")
+  const [apiKeyError, setApiKeyError] = React.useState("")
 
   React.useEffect(() => {
     if (loaded) update_config(config)
@@ -72,6 +77,16 @@ function App() {
     setLang(language == null ? "en" : language)
 
     setConfig(cfg)
+
+    // Check if API key is not set and show prompt
+    if (!cfg.api_settings.qwen_asr_api_key || cfg.api_settings.qwen_asr_api_key.trim() === "") {
+      // Show API key prompt after quickstart is done
+      setTimeout(() => {
+        if (localStorage.getItem("quickstartMenu") != null && language != null) {
+          setApiKeyPromptVisible(true)
+        }
+      }, 500)
+    }
 
     translateGT("Hello, how are you?", "en-US", "tr-TR").then((out) => { console.log("Can access to Google servers: " + out) }).catch(err => {
       console.log(err)
@@ -94,6 +109,30 @@ function App() {
       }
     }
   }, [])
+
+  const handleApiKeyConfirm = () => {
+    const trimmedKey = apiKeyInput.trim()
+    
+    // Validate API key starts with "sk-"
+    if (!trimmedKey.startsWith("sk-")) {
+      setApiKeyError(localization.api_key_invalid[lang])
+      return
+    }
+    
+    // Save to config
+    setConfig({
+      ...config,
+      api_settings: {
+        ...config.api_settings,
+        qwen_asr_api_key: trimmedKey
+      }
+    })
+    
+    // Close popup
+    setApiKeyPromptVisible(false)
+    setApiKeyError("")
+    setApiKeyInput("")
+  }
 
   return (
     <>
@@ -209,6 +248,88 @@ function App() {
             </div>
             <div className='flex flex-row justify-center mt-4'>
               <Button variant="contained" className='w-32' onClick={() => { setGoogleServersErrorVisible(false) }}>{localization.close_menu[lang]}</Button>
+            </div>
+          </div>
+        </div>
+
+        <div className={'transition-all z-30 w-full h-screen flex backdrop-blur-sm bg-transparent justify-center items-center absolute' + (apiKeyPromptVisible && !quickstartVisible ? " opacity-100" : " opacity-0 pointer-events-none")}>
+          <div className={`flex flex-col justify-between p-6 w-6/12 h-auto outline outline-1 ${config.light_mode ? "outline-slate-400" : "outline-slate-950"} rounded ${config.light_mode ? "bg-white" : "bg-slate-950"}`}>
+            <div className='flex flex-col'>
+              <p className='text-2xl font-bold text-center mb-4'>{localization.api_key_required_title[lang]}</p>
+              <p className='text-md text-center mb-2'>{localization.api_key_required_message[lang]}</p>
+              <a 
+                href="https://bailian.console.aliyun.com/?tab=model#/model-market/detail/qwen3-asr-flash-realtime" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className='text-blue-500 hover:text-blue-700 text-center mb-4 underline break-all'
+              >
+                https://bailian.console.aliyun.com/?tab=model#/model-market/detail/qwen3-asr-flash-realtime
+              </a>
+              
+              <div className='flex flex-row items-center mt-4 space-x-2'>
+                <TextField
+                  fullWidth
+                  value={apiKeyInput}
+                  onChange={(e) => {
+                    setApiKeyInput(e.target.value)
+                    setApiKeyError("")
+                  }}
+                  placeholder={localization.api_key_input_placeholder[lang]}
+                  variant="outlined"
+                  error={!!apiKeyError}
+                  helperText={apiKeyError}
+                  slotProps={{
+                    inputLabel: {
+                      style: { color: config.light_mode ? "black" : '#94A3B8' }
+                    },
+                    htmlInput: {
+                      style: { color: config.light_mode ? "black" : '#fff' }
+                    }
+                  }}
+                  sx={{
+                    '& .MuiOutlinedInput-notchedOutline': {
+                      borderColor: config.light_mode ? 'black' : '#94A3B8',
+                    },
+                    '&:hover .MuiOutlinedInput-notchedOutline': {
+                      borderColor: config.light_mode ? 'black' : '#94A3B8',
+                    },
+                    '& .MuiFormHelperText-root': {
+                      color: '#ef4444'
+                    }
+                  }}
+                />
+                <Button 
+                  variant="contained" 
+                  onClick={handleApiKeyConfirm}
+                  className='h-14'
+                >
+                  {localization.confirm[lang]}
+                </Button>
+              </div>
+              
+              <p className={`text-sm mt-4 text-center ${config.light_mode ? "text-gray-600" : "text-slate-400"}`}>
+                {localization.api_key_close_warning[lang]}
+              </p>
+            </div>
+            
+            <div className='flex justify-center mt-4'>
+              <Button 
+                variant="outlined" 
+                onClick={() => {
+                  setApiKeyPromptVisible(false)
+                  setApiKeyError("")
+                  setApiKeyInput("")
+                }}
+                sx={{
+                  borderColor: config.light_mode ? 'black' : '#94A3B8',
+                  color: config.light_mode ? 'black' : '#94A3B8',
+                  '&:hover': {
+                    borderColor: config.light_mode ? 'black' : '#94A3B8',
+                  }
+                }}
+              >
+                {localization.close_menu[lang]}
+              </Button>
             </div>
           </div>
         </div>
