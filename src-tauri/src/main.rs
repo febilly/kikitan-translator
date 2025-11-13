@@ -4,13 +4,15 @@
 use rosc::encoder;
 use rosc::{OscMessage, OscPacket, OscType};
 use std::net::{Ipv4Addr, UdpSocket};
-use std::process::Command;
 use std::thread;
 use tauri::{AppHandle, Emitter, State};
 use std::sync::{Arc, Mutex};
 use tokio_tungstenite::{connect_async, tungstenite::protocol::Message};
 use futures_util::{SinkExt, StreamExt};
 use http::Request;
+
+#[cfg(target_os = "windows")]
+use std::process::Command;
 
 static mut LISTENER_STARTED: bool = false;
 
@@ -23,7 +25,11 @@ fn main() {
     tauri::Builder::default()
         .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_fs::init())
-        .plugin(tauri_plugin_log::Builder::new().build())
+        .plugin(
+            tauri_plugin_log::Builder::new()
+                .level(log::LevelFilter::Info)
+                .build()
+        )
         .manage(QwenWsState {
             sender: Arc::new(Mutex::new(None)),
         })

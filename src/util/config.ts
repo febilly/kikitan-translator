@@ -113,7 +113,16 @@ export function load_config(): Config {
 }
 
 export function update_config(config: Config) {
-    info(`[CONFIG] Updating config to ${JSON.stringify(config, null, 2)}`)
+    // Create a sanitized version of the config for logging (remove API keys)
+    const sanitizedConfig = {
+        ...config,
+        api_settings: {
+            ...config.api_settings,
+            qwen_asr_api_key: config.api_settings.qwen_asr_api_key ? '***REDACTED***' : ''
+        }
+    };
+    
+    info(`[CONFIG] Updating config to ${JSON.stringify(sanitizedConfig, null, 2)}`)
 
     localStorage.setItem("config", JSON.stringify(config))
 }
