@@ -148,9 +148,29 @@ async fn qwen_ws_connect(
 ) -> Result<(), String> {
     let url = format!("wss://dashscope.aliyuncs.com/api-ws/v1/realtime?model={}", model);
     
-    // Create request with custom headers
+    // Parse URL to get authority/host
+    let uri = url.parse::<http::Uri>()
+        .map_err(|e| format!("Failed to parse URL: {}", e))?;
+    
+    let authority = uri.authority()
+        .ok_or_else(|| "Missing authority in URL".to_string())?
+        .as_str();
+    
+    let host = authority
+        .find('@')
+        .map(|idx| authority.split_at(idx + 1).1)
+        .unwrap_or(authority);
+    
+    // Create request with all required WebSocket handshake headers
+    // plus our custom application headers
     let request = Request::builder()
-        .uri(&url)
+        .method("GET")
+        .uri(uri)
+        .header("Host", host)
+        .header("Connection", "Upgrade")
+        .header("Upgrade", "websocket")
+        .header("Sec-WebSocket-Version", "13")
+        .header("Sec-WebSocket-Key", tokio_tungstenite::tungstenite::handshake::client::generate_key())
         .header("Authorization", format!("Bearer {}", api_key))
         .header("OpenAI-Beta", "realtime=v1")
         .body(())
