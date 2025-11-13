@@ -96,6 +96,7 @@ version = "0.1.0"
 dependencies = [
  "futures-util",
  "http",
+ "log",
  "rosc",
  "serde",
  "serde_json",
