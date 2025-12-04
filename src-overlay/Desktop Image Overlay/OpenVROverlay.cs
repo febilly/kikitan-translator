@@ -17,6 +17,7 @@ public class OpenVROverlay : Application
 
     private float overlayDistance = -1.5f;
     private float verticalOffset = -0.3f;
+    private float horizontalOffset = 0f;
 
     public OpenVROverlay() : base(ApplicationType.Overlay)
     {
@@ -45,7 +46,7 @@ public class OpenVROverlay : Application
 
         HmdMatrix34_t overlayTransform = new HmdMatrix34_t
         {
-            m0 = 1, m1 = 0, m2 = 0, m3 = leftX,
+            m0 = 1, m1 = 0, m2 = 0, m3 = horizontalOffset,
             m4 = 0, m5 = 1, m6 = 0, m7 = verticalOffset,
             m8 = 0, m9 = 0, m10 = 1, m11 = overlayDistance
         };
