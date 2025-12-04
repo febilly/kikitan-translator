@@ -227,25 +227,16 @@ export default function Settings({ closeCallback, config, setConfig, lang }: Set
                 </CustomTabPanel>
                 <CustomTabPanel value={page} index={1}>
                     <div className="flex flex-col">
-                        <FormControlLabel control={<Checkbox checked={config.gemini_settings.gemini_enabled} onChange={(e) => {
+                        <FormControlLabel control={<Checkbox checked={config.gemini_settings.microphone_capture} onChange={(e) => {
                             setConfig({
                                 ...config,
                                 gemini_settings: {
                                     ...config.gemini_settings,
-                                    gemini_enabled: e.target.checked
-                                }
-                            })
-                        }} />} label={localization.enable_gemini[lang]} />
-                        <FormControlLabel disabled={!config.gemini_settings.gemini_enabled} control={<Checkbox checked={config.gemini_settings.gemini_microphone_capture} onChange={(e) => {
-                            setConfig({
-                                ...config,
-                                gemini_settings: {
-                                    ...config.gemini_settings,
-                                    gemini_microphone_capture: e.target.checked
+                                    microphone_capture: e.target.checked
                                 }
                             })
                         }} />} label={localization.enable_gemini_microphone_capture[lang]} />
-                        <FormControlLabel disabled={!config.gemini_settings.gemini_enabled} control={<Checkbox checked={config.gemini_settings.desktop_capture} onChange={(e) => {
+                        <FormControlLabel control={<Checkbox checked={config.gemini_settings.desktop_capture} onChange={(e) => {
                             setConfig({
                                 ...config,
                                 gemini_settings: {
@@ -262,7 +253,7 @@ export default function Settings({ closeCallback, config, setConfig, lang }: Set
                                 htmlInput: {
                                     style: { color: config.light_mode ? "black" : '#fff' }
                                 }
-                            }} className="w-48 h-8" value={config.gemini_settings.gemini_api_key} id="outlined-basic" label={"Gemini API Key"} variant="outlined" type="password" disabled={!config.gemini_settings.gemini_enabled} onChange={(e) => {
+                            }} className="w-48 h-8" value={config.gemini_settings.gemini_api_key} id="outlined-basic" label={"Gemini API Key"} variant="outlined" type="password" onChange={(e) => {
                                 setConfig({
                                     ...config,
                                     gemini_settings: {
@@ -347,24 +338,15 @@ export default function Settings({ closeCallback, config, setConfig, lang }: Set
                 </CustomTabPanel>
                 <CustomTabPanel className="flex" value={page} index={3}>
                     <FormGroup>
-                        <FormControlLabel control={<Checkbox checked={config.data_out.enable_user_speak_data} onChange={(e) => {
+                        <FormControlLabel control={<Checkbox checked={config.data_out.enable_user_data} onChange={(e) => {
                             setConfig({
                                 ...config,
                                 data_out: {
                                     ...config.data_out,
-                                    enable_user_speak_data: e.target.checked
+                                    enable_user_data: e.target.checked
                                 }
                             })
-                        }} />} label={localization.enable_user_transcription_data[lang]} />
-                        <FormControlLabel control={<Checkbox checked={config.data_out.enable_user_translation_data} onChange={(e) => {
-                            setConfig({
-                                ...config,
-                                data_out: {
-                                    ...config.data_out,
-                                    enable_user_translation_data: e.target.checked
-                                }
-                            })
-                        }} />} label={localization.enable_user_translation_data[lang]} />
+                        }} />} label={localization.enable_user_data[lang]} />
                         <FormControlLabel control={<Checkbox checked={config.data_out.enable_desktop_data} onChange={(e) => {
                             setConfig({
                                 ...config,
@@ -387,7 +369,7 @@ export default function Settings({ closeCallback, config, setConfig, lang }: Set
             <div className={'transition-all z-20 w-full h-[192] flex backdrop-blur-sm bg-transparent justify-center items-center absolute' + (geminiTutorialShow ? " opacity-100" : " opacity-0 pointer-events-none")}>
                 <div className={`flex flex-col items-center justify-center w-10/12 h-3/6 outline outline-1 ${config.light_mode ? "outline-white" : "outline-slate-950"} outline-gray-200 rounded ${config.light_mode ? "bg-white" : "bg-slate-950"}`}>
                     {geminiTutorialShow &&
-                        <video autoPlay loop className='mt-4'>
+                        <video autoPlay loop controls className='mt-4'>
                             <source src="/gemini_tutorial.mp4" type="video/mp4"></source>
                         </video>
                     }

@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { invoke } from "@tauri-apps/api/core";
 import { langSource, langTo } from "./constants"
 
 import {
@@ -26,6 +27,7 @@ export type Config = {
     language_settings: {
         japanese_omit_questionmark: boolean,
     },
+    enable_overlay: boolean,
     vrchat_settings: {
         enable_chatbox: boolean,
         translation_first: boolean,
@@ -37,8 +39,7 @@ export type Config = {
         osc_port: number
     },
     gemini_settings: {
-        gemini_enabled: boolean,
-        gemini_microphone_capture: boolean,
+        microphone_capture: boolean,
         desktop_capture: boolean,
         gemini_api_key: string
     },
@@ -48,8 +49,7 @@ export type Config = {
         items: MessageHistoryItem[]
     },
     data_out: {
-        enable_user_speak_data: boolean,
-        enable_user_translation_data: boolean,
+        enable_user_data: boolean,
         enable_desktop_data: boolean
     }
 }
@@ -59,6 +59,7 @@ export const DEFAULT_CONFIG: Config = {
     target_language: "ja",
     mode: 0,
     light_mode: false,
+    enable_overlay: true,
     language_settings: {
         japanese_omit_questionmark: true
     },
@@ -73,8 +74,7 @@ export const DEFAULT_CONFIG: Config = {
         osc_port: 9000
     },
     gemini_settings: {
-        gemini_enabled: true,
-        gemini_microphone_capture: true,
+        microphone_capture: true,
         desktop_capture: true,
         gemini_api_key: ""
     },
@@ -84,8 +84,7 @@ export const DEFAULT_CONFIG: Config = {
         items: []
     },
     data_out: {
-        enable_user_speak_data: false,
-        enable_user_translation_data: false,
+        enable_user_data: false,
         enable_desktop_data: false
     }
 }
@@ -139,17 +138,41 @@ export function load_config(): Config {
 
     info("[CONFIG] Loaded config!")
 
+    sendConfigDataToVRC(config)
+
     return config
 }
 
 export function update_config(config: Config) {
-    info(`[CONFIG] Updating config to ${JSON.stringify({
-        ...config,
-        gemini_settings: {
-            ...config.gemini_settings,
-            gemini_api_key: config.gemini_settings.gemini_api_key.trim().length > 0 ? "********" : ""
-        }
-    }, null, 2)}`)
+    // info(`[CONFIG] Updating config to ${JSON.stringify({
+    //     ...config,
+    //     gemini_settings: {
+    //         ...config.gemini_settings,
+    //         gemini_api_key: config.gemini_settings.gemini_api_key.trim().length > 0 ? "********" : ""
+    //     }
+    // }, null, 2)}`)
+
+    sendConfigDataToVRC(config)
 
     localStorage.setItem("config", JSON.stringify(config))
+}
+
+function sendConfigDataToVRC(config: Config) {
+    invoke("send_disable_desktop", {
+        data: !config.gemini_settings.desktop_capture,
+        address: config.vrchat_settings.osc_address,
+        port: `${config.vrchat_settings.osc_port}`,
+    });
+
+    invoke("send_disable_chatbox", {
+        data: !config.vrchat_settings.enable_chatbox,
+        address: config.vrchat_settings.osc_address,
+        port: `${config.vrchat_settings.osc_port}`,
+    });
+
+    invoke("send_disable_overlay", {
+        data: !config.enable_overlay,
+        address: config.vrchat_settings.osc_address,
+        port: `${config.vrchat_settings.osc_port}`,
+    });
 }
