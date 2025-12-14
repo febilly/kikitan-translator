@@ -231,7 +231,7 @@ function App() {
           <AppBar position="static">
             <Toolbar>
               <Typography className="flex" variant="h6" component="div" sx={{ flexGrow: 1 }}>
-                Kikitan Translator
+                Kikitan Translator Proxied
                 <p className="text-sm italic ml-2 mt-2">
                   <a href='' onClick={(e) => {
                     e.preventDefault()

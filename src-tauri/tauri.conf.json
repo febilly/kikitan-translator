@@ -36,7 +36,7 @@
       }
     }
   },
-  "productName": "Kikitan Translator",
+  "productName": "Kikitan Translator Proxied",
   "version": "1.2.2",
   "identifier": "com.github.yusufozmen01.kikitan",
   "app": {
@@ -46,7 +46,7 @@
         "height": 500,
         "minHeight": 500,
         "minWidth": 900,
-        "title": "Kikitan Translator",
+        "title": "Kikitan Translator Proxied",
         "width": 900
       }
     ],

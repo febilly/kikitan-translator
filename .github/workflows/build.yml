@@ -47,6 +47,6 @@ jobs:
         with:
           # tauri-action replaces \_\_VERSION\_\_ with the app version
           tagName: "v__VERSION__"
-          releaseName: "Kikitan Translator v__VERSION__"
+          releaseName: "Kikitan Translator Proxied v__VERSION__"
           releaseDraft: true
           prerelease: false

@@ -19,12 +19,12 @@ tauri_conf = json.load(open("src-tauri/tauri.conf.json"))
 repo = g.get_repo("YusufOzmen01/kikitan-translator")
 
 print("Creating release...")
-new_release = repo.create_git_tag_and_release(tauri_conf["version"], tauri_conf["version"], "Kikitan Translator v" + tauri_conf["version"], open("public/changelogs/en.md").read(), repo.get_commits()[0].sha, "commit")
+new_release = repo.create_git_tag_and_release(tauri_conf["version"], tauri_conf["version"], "Kikitan Translator Proxied v" + tauri_conf["version"], open("public/changelogs/en.md").read(), repo.get_commits()[0].sha, "commit")
 
 print("Uploading setup...")
-new_release.upload_asset("src-tauri/target/release/bundle/nsis/Kikitan Translator_{}_x64-setup.exe".format(tauri_conf["version"]), "Kikitan Translator_x64-setup.exe")
+new_release.upload_asset("src-tauri/target/release/bundle/nsis/Kikitan Translator Proxied_{}_x64-setup.exe".format(tauri_conf["version"]), "Kikitan Translator Proxied_x64-setup.exe")
 print("Uploading update zip...")
-new_release.upload_asset("src-tauri/target/release/bundle/nsis/Kikitan Translator_{}_x64-setup.nsis.zip".format(tauri_conf["version"]), "Kikitan Translator_x64-setup.nsis.zip")
+new_release.upload_asset("src-tauri/target/release/bundle/nsis/Kikitan Translator Proxied_{}_x64-setup.nsis.zip".format(tauri_conf["version"]), "Kikitan Translator Proxied_x64-setup.nsis.zip")
 
 print("Updating release...")
 new_release.update_release(make_latest="true", name=new_release.title, message=new_release.body)
@@ -34,7 +34,7 @@ update_str = json.dumps({
     "version": "v" + tauri_conf["version"],
     "platforms": {
         "windows-x86_64": {
-            "signature": open("src-tauri/target/release/bundle/nsis/Kikitan Translator_{}_x64-setup.nsis.zip.sig".format(tauri_conf["version"]), "r").read(),
+            "signature": open("src-tauri/target/release/bundle/nsis/Kikitan Translator Proxied_{}_x64-setup.nsis.zip.sig".format(tauri_conf["version"]), "r").read(),
             "url": "https://github.com/YusufOzmen01/kikitan-translator/releases/download/{}/Kikitan.Translator_{}_x64-setup.nsis.zip".format(tauri_conf["version"], tauri_conf["version"])
         }
     }

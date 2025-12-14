@@ -229,7 +229,7 @@ function App() {
           <AppBar position="static">
             <Toolbar>
               <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-                Kikitan Translator
+                Kikitan Translator Proxied
               </Typography>
               <div className='flex'>
                 <Select sx={{
