@@ -1,5 +1,5 @@
 export default async function (text: string, source: string, target: string) {
-    const res = await (await fetch(`https://faas-sgp1-18bc02ac.doserverless.co/api/v1/web/fn-db13f37d-c569-4f0a-b5aa-6eac364a55e3/default/translate?client=gtx&sl=${source}&tl=${target}&dt=t&dt=bd&dj=1&q=${text.replace("%/g", "%25")}`)).json()
+    const res = await (await fetch(`https://faas-sgp1-18bc02ac.doserverless.co/api/v1/web/fn-db13f37d-c569-4f0a-b5aa-6eac364a55e3/default/translate?client=gtx&sl=${source}&tl=${target}&dt=t&dt=bd&dj=1&q=${text.replace("%", "%25")}`)).json()
 
     let final = ""
 
