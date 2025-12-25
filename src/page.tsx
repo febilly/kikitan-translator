@@ -10,7 +10,6 @@ import {
   MenuItem,
   Button,
   IconButton,
-  CircularProgress
 } from '@mui/material';
 
 import {
@@ -36,7 +35,7 @@ import Changelogs from './pages/Changelogs';
 
 import { localization } from './util/localization';
 
-import translateGT from './translators/google_translate';
+import translateGT, { initGoogleTranslateEndpoint } from './translators/google_translate';
 
 function App() {
   const [quickstartVisible, setQuickstartVisible] = React.useState(true)
@@ -58,41 +57,46 @@ function App() {
   }, [config])
 
   React.useEffect(() => {
-    getVersion().then((version) => {
-      setAppVersion(version)
-      setChangelogsVisible(localStorage.getItem("changelogsViewed") != version)
+    (async () => {
+      getVersion().then((version) => {
+        setAppVersion(version)
+        setChangelogsVisible(localStorage.getItem("changelogsViewed") != version)
 
-      setTimeout(() => localStorage.setItem("changelogsViewed", version), 1000)
-    })
+        setTimeout(() => localStorage.setItem("changelogsViewed", version), 1000)
+      })
 
-    const cfg = load_config()
-    const language = localStorage.getItem("lang") as Lang | null
-    
-    setQuickstartVisible(localStorage.getItem("quickstartMenu") == null || language == null)
-    setLang(language == null ? "en" : language)
+      const cfg = load_config()
+      const language = localStorage.getItem("lang") as Lang | null
+      
+      setQuickstartVisible(localStorage.getItem("quickstartMenu") == null || language == null)
+      setLang(language == null ? "en" : language)
 
-    setConfig(cfg)
+      setConfig(cfg)
 
-    translateGT("Hello, how are you?", "en-US", "tr-TR").then((out) => { console.log("Can access to Google servers: " + out) }).catch(err => {
-      console.log(err)
+      // Fetch translation endpoint once per app run (startup)
+      await initGoogleTranslateEndpoint();
 
-      setGoogleServersErrorVisible(true)
-    })
+      translateGT("Hello, how are you?", "en-US", "tr-TR").then((out) => { console.log("Can access to Google servers: " + out) }).catch(err => {
+        console.log(err)
 
-    invoke("start_vrc_listener")
-    
-    setTimeout(() => setLoaded(true), 300);
+        setGoogleServersErrorVisible(true)
+      })
 
-    if (localStorage.getItem("last_donation") == null) {
-      localStorage.setItem("last_donation", "1")
-    } else {
-      const last = parseInt(localStorage.getItem("last_donation")!)
+      invoke("start_vrc_listener")
+      
+      setTimeout(() => setLoaded(true), 300);
 
-      if ((last + 60 * 60 * 12 * 1000) <= Date.now()) {
-        setDonateVisible(true)
-        localStorage.setItem("last_donation", `${Date.now()}`)
+      if (localStorage.getItem("last_donation") == null) {
+        localStorage.setItem("last_donation", "1")
+      } else {
+        const last = parseInt(localStorage.getItem("last_donation")!)
+
+        if ((last + 60 * 60 * 12 * 1000) <= Date.now()) {
+          setDonateVisible(true)
+          localStorage.setItem("last_donation", `${Date.now()}`)
+        }
       }
-    }
+    })()
   }, [])
 
   return (
