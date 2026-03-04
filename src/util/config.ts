@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { invoke } from "@tauri-apps/api/core";
 import { langSource, langTo } from "./constants"
 
 import {
@@ -12,17 +13,26 @@ export const speed_presets = {
     fast: 15
 }
 
+export type MessageHistoryItem = {
+    source: string;
+    translation: string;
+    timestamp: number;
+}
+
 export type Config = {
     source_language: string,
     target_language: string,
-    mode: number,
     light_mode: boolean,
+    mode: number,
+    microphone: string,
+    desktop_capture: boolean,
+    use_edge_translate: boolean,
     language_settings: {
         japanese_omit_questionmark: boolean,
-        english_gender_change: boolean,
-        english_gender_change_gender: number,
     },
+    enable_overlay: boolean,
     vrchat_settings: {
+        enable_chatbox: boolean,
         translation_first: boolean,
         only_translation: boolean,
         disable_kikitan_when_muted: boolean,
@@ -30,6 +40,15 @@ export type Config = {
         chatbox_update_speed: number,
         osc_address: string,
         osc_port: number
+    },
+    message_history: {
+        enabled: boolean,
+        max_items: number,
+        items: MessageHistoryItem[]
+    },
+    data_out: {
+        enable_user_data: boolean,
+        enable_desktop_data: boolean
     }
 }
 
@@ -37,13 +56,16 @@ export const DEFAULT_CONFIG: Config = {
     source_language: "en-US",
     target_language: "ja",
     mode: 0,
+    microphone: "default",
     light_mode: false,
+    desktop_capture: false,
+    enable_overlay: true,
+    use_edge_translate: false,
     language_settings: {
-        japanese_omit_questionmark: true,
-        english_gender_change: false,
-        english_gender_change_gender: 0
+        japanese_omit_questionmark: true
     },
     vrchat_settings: {
+        enable_chatbox: true,
         translation_first: true,
         only_translation: false,
         disable_kikitan_when_muted: false,
@@ -51,6 +73,15 @@ export const DEFAULT_CONFIG: Config = {
         chatbox_update_speed: speed_presets.slow,
         osc_address: "127.0.0.1",
         osc_port: 9000
+    },
+    message_history: {
+        enabled: true,
+        max_items: 50,
+        items: []
+    },
+    data_out: {
+        enable_user_data: false,
+        enable_desktop_data: false
     }
 }
 
@@ -103,11 +134,33 @@ export function load_config(): Config {
 
     info("[CONFIG] Loaded config!")
 
+    sendConfigDataToVRC(config)
+
     return config
 }
 
 export function update_config(config: Config) {
-    info(`[CONFIG] Updating config to ${JSON.stringify(config, null, 2)}`)
+    sendConfigDataToVRC(config)
 
     localStorage.setItem("config", JSON.stringify(config))
+}
+
+function sendConfigDataToVRC(config: Config) {
+    invoke("send_disable_desktop", {
+        data: !config.desktop_capture,
+        address: config.vrchat_settings.osc_address,
+        port: `${config.vrchat_settings.osc_port}`,
+    });
+
+    invoke("send_disable_chatbox", {
+        data: !config.vrchat_settings.enable_chatbox,
+        address: config.vrchat_settings.osc_address,
+        port: `${config.vrchat_settings.osc_port}`,
+    });
+
+    invoke("send_disable_overlay", {
+        data: !config.enable_overlay,
+        address: config.vrchat_settings.osc_address,
+        port: `${config.vrchat_settings.osc_port}`,
+    });
 }
